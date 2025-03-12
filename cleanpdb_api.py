@@ -9,8 +9,8 @@ from fastapi.responses import FileResponse
 app = FastAPI()
 
 # Define output folder
-DOWNLOADS_DIR = Path.home() / "Downloads" / "cleaned_pdb"
-DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+DOWNLOADS_DIR = Path("./cleaned_pdb")
+DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)  # Ensure the folder exists
 
 def process_pdb(file_path: Path):
     structure = load_pdb(file_path)
@@ -57,8 +57,9 @@ async def upload_pdb(files: list[UploadFile] = File(...)):
 def download_file(file_name: str):
     file_path = DOWNLOADS_DIR / file_name
     if file_path.exists():
-        return {"message": "File exists", "path": str(file_path)}
-    return {"error": "File not found", "path_checked": str(file_path)}
+        return FileResponse(path=str(file_path), filename=file_name, media_type="application/octet-stream")
+    return {"error": "File not found", "checked_path": str(file_path)}
+
 @app.get("/")
 def home():
     return {"message": "PDB Cleaning API is running!"}
