@@ -15,10 +15,14 @@ DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 def process_pdb(file_path: Path):
     structure = load_pdb(file_path)
     cleaned_atoms, _ = clean_pdb(structure, remove_waters=True, keep_hydrogens=False, handle_altloc=True, remove_insertions=True, report_gaps=False)
+    
     cleaned_path = DOWNLOADS_DIR / f"cleaned_{file_path.name}"
     save_cleaned_pdb(DOWNLOADS_DIR, file_path.name, cleaned_atoms)
-    return cleaned_path
+    
+    # Print the path where the file is supposed to be saved
+    print(f"✅ Saved cleaned file at: {cleaned_path}")
 
+    return cleaned_path
 @app.post("/upload/")
 async def upload_pdb(files: list[UploadFile] = File(...)):
     if len(files) == 1:
