@@ -8,9 +8,15 @@ from fastapi.responses import FileResponse
 
 app = FastAPI()
 
-# Define output folder inside project directory
+# Define the output folder inside the project directory
 DOWNLOADS_DIR = Path("./cleaned_pdb")
-DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)  # Ensure the folder exists
+
+# Ensure the folder exists and print confirmation
+try:
+    DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"✅ Directory created or already exists: {DOWNLOADS_DIR}")
+except Exception as e:
+    print(f"❌ Error creating directory: {e}")
 
 def process_pdb(file_path: Path):
     """Loads, cleans, and saves a cleaned PDB file."""
@@ -82,6 +88,15 @@ def list_files():
     """Lists all saved files in the cleaned_pdb directory."""
     files = [f.name for f in DOWNLOADS_DIR.iterdir()]
     return {"saved_files": files}
+
+@app.get("/debug_paths")
+def debug_paths():
+    """Shows debug info: working directory and existing files."""
+    return {
+        "current_working_directory": str(Path.cwd()),
+        "downloads_directory": str(DOWNLOADS_DIR),
+        "existing_files": [f.name for f in DOWNLOADS_DIR.glob("*")]
+    }
 
 @app.get("/")
 def home():
