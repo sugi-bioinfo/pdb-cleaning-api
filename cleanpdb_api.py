@@ -55,3 +55,6 @@ def download_file(file_name: str):
     if file_path.exists():
         return FileResponse(file_path, filename=file_name, media_type="application/octet-stream")
     return {"error": "File not found"}
+@app.get("/")
+def home():
+    return {"message": "PDB Cleaning API is running!"}
