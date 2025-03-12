@@ -8,31 +8,40 @@ from fastapi.responses import FileResponse
 
 app = FastAPI()
 
-# Define output folder
+# Define output folder inside project directory
 DOWNLOADS_DIR = Path("./cleaned_pdb")
 DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)  # Ensure the folder exists
 
 def process_pdb(file_path: Path):
-    structure = load_pdb(file_path)
-    cleaned_atoms, _ = clean_pdb(structure, remove_waters=True, keep_hydrogens=False, handle_altloc=True, remove_insertions=True, report_gaps=False)
-    
-    cleaned_path = DOWNLOADS_DIR / f"cleaned_{file_path.name}"
-    save_cleaned_pdb(DOWNLOADS_DIR, file_path.name, cleaned_atoms)
-    
-    # Print the path where the file is supposed to be saved
-    print(f"✅ Saved cleaned file at: {cleaned_path}")
+    """Loads, cleans, and saves a cleaned PDB file."""
+    try:
+        structure = load_pdb(file_path)
+        cleaned_atoms, _ = clean_pdb(structure, remove_waters=True, keep_hydrogens=False, handle_altloc=True, remove_insertions=True, report_gaps=False)
+        
+        cleaned_path = DOWNLOADS_DIR / f"cleaned_{file_path.name}"
+        save_cleaned_pdb(DOWNLOADS_DIR, file_path.name, cleaned_atoms)
+        
+        print(f"✅ Successfully saved cleaned file at: {cleaned_path}")
+        return cleaned_path
+    except Exception as e:
+        print(f"❌ Error processing PDB file: {e}")
+        return None
 
-    return cleaned_path
 @app.post("/upload/")
 async def upload_pdb(files: list[UploadFile] = File(...)):
+    """Handles single or multiple PDB file uploads and returns download links."""
     if len(files) == 1:
         # Process single file
         file = files[0]
         temp_path = DOWNLOADS_DIR / file.filename
         with temp_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+
         cleaned_file = process_pdb(temp_path)
-        return {"download_url": f"http://127.0.0.1:8000/download/{cleaned_file.name}"}
+        if cleaned_file:
+            return {"download_url": f"https://pdb-cleaning-api.onrender.com/download/{cleaned_file.name}"}
+        else:
+            return {"error": "File processing failed."}
     
     else:
         # Process multiple files
@@ -51,15 +60,25 @@ async def upload_pdb(files: list[UploadFile] = File(...)):
             for pdb_file in session_folder.glob("*"):
                 zipf.write(pdb_file, pdb_file.name)
         
-        return {"download_url": f"http://127.0.0.1:8000/download/{zip_path.name}"}
+        return {"download_url": f"https://pdb-cleaning-api.onrender.com/download/{zip_path.name}"}
 
 @app.get("/download/{file_name}")
 def download_file(file_name: str):
+    """Serves the cleaned PDB file for download."""
     file_path = DOWNLOADS_DIR / file_name
     if file_path.exists():
+        print(f"✅ Serving file: {file_path}")  # Debugging
         return FileResponse(path=str(file_path), filename=file_name, media_type="application/octet-stream")
+    print(f"❌ File not found: {file_path}")  # Debugging
     return {"error": "File not found", "checked_path": str(file_path)}
+
+@app.get("/list_files")
+def list_files():
+    """Lists all saved files in the cleaned_pdb directory."""
+    files = [f.name for f in DOWNLOADS_DIR.iterdir()]
+    return {"saved_files": files}
 
 @app.get("/")
 def home():
+    """Homepage route."""
     return {"message": "PDB Cleaning API is running!"}
