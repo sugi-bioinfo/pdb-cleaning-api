@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 app = FastAPI()
 
 # Define output folder
-DOWNLOADS_DIR = Path.home() / "Downloads" / "cleaned_pdb"
+DOWNLOADS_DIR = Path("./cleaned_pdb")
 DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 def process_pdb(file_path: Path):
@@ -53,7 +53,7 @@ async def upload_pdb(files: list[UploadFile] = File(...)):
 def download_file(file_name: str):
     file_path = DOWNLOADS_DIR / file_name
     if file_path.exists():
-        return FileResponse(file_path, filename=file_name, media_type="application/octet-stream")
+        return FileResponse(path=file_path, filename=file_name, media_type="application/octet-stream")
     return {"error": "File not found"}
 @app.get("/")
 def home():
