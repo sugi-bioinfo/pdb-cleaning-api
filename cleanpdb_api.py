@@ -68,7 +68,12 @@ def download_file(file_name: str):
     file_path = DOWNLOADS_DIR / file_name
     if file_path.exists():
         print(f"✅ Serving file: {file_path}")  # Debugging
-        return FileResponse(path=str(file_path), filename=file_name, media_type="application/octet-stream")
+        return FileResponse(
+            path=str(file_path), 
+            filename=file_name, 
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": f"attachment; filename={file_name}"}
+        )
     print(f"❌ File not found: {file_path}")  # Debugging
     return {"error": "File not found", "checked_path": str(file_path)}
 
