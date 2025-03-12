@@ -53,8 +53,8 @@ async def upload_pdb(files: list[UploadFile] = File(...)):
 def download_file(file_name: str):
     file_path = DOWNLOADS_DIR / file_name
     if file_path.exists():
-        return FileResponse(path=file_path, filename=file_name, media_type="application/octet-stream")
-    return {"error": "File not found"}
+        return {"message": "File exists", "path": str(file_path)}
+    return {"error": "File not found", "path_checked": str(file_path)}
 @app.get("/")
 def home():
     return {"message": "PDB Cleaning API is running!"}
