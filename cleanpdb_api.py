@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 app = FastAPI()
 
 # Define output folder
-DOWNLOADS_DIR = Path("./cleaned_pdb")
+DOWNLOADS_DIR = Path.home() / "Downloads" / "cleaned_pdb"
 DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 def process_pdb(file_path: Path):
