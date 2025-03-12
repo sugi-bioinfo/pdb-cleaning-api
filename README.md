@@ -1,22 +1,22 @@
-# PDB Cleaning API
+# 🧬 PDB Cleaning API
 
-## 📌 Overview
-The **PDB Cleaning API** is a simple web service that allows users to upload PDB files and receive cleaned versions of those files. The API processes both single and multiple PDB files, making it easier to manage and clean structural data.
+This API allows users to **upload PDB files, clean them**, and **download** the processed versions.  
+It is built using **FastAPI** and deployed on **Render** for public access. 🚀  
 
-## 🚀 Features
-- 🧹 Cleans PDB files by removing unnecessary data.
-- 📂 Supports both single and batch uploads.
-- ⬇️ Provides cleaned PDB files for download.
-- 🌐 Runs locally as a REST API.
+## 🌍 **Live API URL**
+**Base URL:** [`https://pdb-cleaning-api.onrender.com`](https://pdb-cleaning-api.onrender.com)  
 
-## 🛠️ Installation
-### Prerequisites
-- Python 3.10+
-- Flask (for the API)
-- Required Python dependencies (listed in `requirements.txt`)
+You can access the API documentation here:  
+📑 **Swagger UI:** [`https://pdb-cleaning-api.onrender.com/docs`](https://pdb-cleaning-api.onrender.com/docs)  
 
-### Steps
-1. **Clone the repository**  
-   ```bash
-   git clone https://github.com/sugi-bioinfo/pdb-cleaning-api.git
-   cd pdb-cleaning-api
+---
+
+## **🚀 API Endpoints & Usage**
+### 1️⃣ Upload a PDB File
+**Uploads a PDB file and returns a cleaned version.**  
+- **URL:** `/upload/`
+- **Method:** `POST`
+- **Content-Type:** `multipart/form-data`
+- **Example cURL Request:**
+  ```sh
+  curl -X POST -F "files=@example.pdb" https://pdb-cleaning-api.onrender.com/upload/
